@@ -5,6 +5,7 @@ import UserModel from './models/user.js';
 // ES module path handling
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { log } from 'console';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -31,7 +32,23 @@ app.get('/', (req, res) => {
 
 app.get('/read',  async(req, res) => {
       let allusers = await UserModel.find()
-    res.render('read',{users:allusers});
+    res.render('read',{user:allusers});
+
+});
+app.get('/delete/:id',  async(req, res) => {
+      let users = await UserModel.findOneAndDelete({_id:req.params.id})
+      res.redirect('/read')
+
+});
+app.get('/edit/:userid',  async(req, res) => {
+      let user = await UserModel.findOne({_id:req.params.userid})
+      res.render('edit',{user})
+
+});
+app.post('/update/:userid',  async(req, res) => {
+  let{image , email , name} = req.body
+      let user = await UserModel.findOneAndUpdate({_id:req.params.userid},{name,email,image},{new:true})
+      res.redirect('/read')
 
 });
 
@@ -42,9 +59,16 @@ app.post('/create', async (req, res) => {
 
     const createdUser = await UserModel.create({ name, email, image });
     res.redirect("/read")
+    
+
   
 });
 
 app.listen(3000, () => {
   console.log("Server running on port 3000");
 });
+
+
+
+
+
